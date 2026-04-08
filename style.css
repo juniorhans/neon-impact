@@ -120,6 +120,7 @@ body {
 
 canvas {
     display: block;
+    touch-action: none;
     width: 100%;
     max-width: 640px;
     aspect-ratio: 4 / 3;

@@ -7,6 +7,15 @@ canvas.height = 480;
 // =========================
 // ESTADO GLOBAL
 // =========================
+let keys = {};
+let touchActive = false;
+let touchX = 0;
+let touchY = 0;
+let lastTouchX = 0;
+let lastTouchY = 0;
+
+
+
 let player, bullets, enemies, particles, explosions, score, hp, running;
 let stars = [];
 let farStars = [];
@@ -62,9 +71,36 @@ const stages = [
 // =========================
 // INPUT
 // =========================
-let keys = {};
+
 window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+
+canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+
+    const rect = canvas.getBoundingClientRect();
+    touchActive = true;
+
+    touchX = e.touches[0].clientX - rect.left;
+    touchY = e.touches[0].clientY - rect.top;
+
+    lastTouchX = touchX;
+    lastTouchY = touchY;
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+
+    const rect = canvas.getBoundingClientRect();
+    touchX = e.touches[0].clientX - rect.left;
+    touchY = e.touches[0].clientY - rect.top;
+}, { passive: false });
+
+canvas.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    touchActive = false;
+}, { passive: false });
+
 
 // =========================
 // INÍCIO
@@ -291,6 +327,20 @@ function updatePlayer(delta) {
     if (keys["s"] || keys["arrowdown"]) player.y += player.speed;
     if (keys["a"] || keys["arrowleft"]) player.x -= player.speed;
     if (keys["d"] || keys["arrowright"]) player.x += player.speed;
+
+    if (touchActive) {
+    const sensitivity = 1.0;
+
+    const deltaX = touchX - lastTouchX;
+    const deltaY = touchY - lastTouchY;
+
+    player.x += deltaX * sensitivity;
+    player.y += deltaY * sensitivity;
+
+    lastTouchX = touchX;
+    lastTouchY = touchY;
+}
+
 
     player.x = Math.max(12, Math.min(canvas.width - player.w - 12, player.x));
     player.y = Math.max(12, Math.min(canvas.height - player.h - 12, player.y));
