@@ -412,12 +412,56 @@ function updateBullets(delta) {
     }
 }
 
+
+function explodeBullet(b) {
+    const speed = 3.2;
+
+    const directions = [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+        [0.7, 0.7],
+        [0.7, -0.7],
+        [-0.7, 0.7],
+        [-0.7, -0.7]
+    ];
+
+    directions.forEach(d => {
+        enemyBullets.push({
+            x: b.x,
+            y: b.y,
+            vx: d[0] * speed,
+            vy: d[1] * speed,
+            size: 5,
+            fromExplosion: true
+        });
+    });
+
+    // efeito visual
+    createExplosion(b.x, b.y, "#ff5a7a");
+}
+
 function updateEnemyBullets() {
     for (let i = enemyBullets.length - 1; i >= 0; i--) {
         const b = enemyBullets[i];
 
         b.x += b.vx;
         b.y += b.vy;
+
+        if (b.explosive) {
+            b.pulse = (b.pulse || 0) + 0.1;
+        }
+
+
+
+        // PROJÉTIL EXPLOSIVO
+        if (b.explosive && b.x <= canvas.width / 2) {
+            explodeBullet(b);
+            enemyBullets.splice(i, 1);
+            continue;
+        }
+
 
         if (b.x < -20 || b.y < -20 || b.y > canvas.height + 20) {
             enemyBullets.splice(i, 1);
@@ -535,6 +579,7 @@ function updateEnemies(delta) {
 }
 
 function updateBoss(boss, delta) {
+    boss.specialTimer += delta;
     const targetX = boss.bossType === "boss2" ? canvas.width - 190 : canvas.width - 170;
 
     if (boss.x > targetX) {
@@ -559,6 +604,7 @@ function updateBoss(boss, delta) {
         if (boss.shootTimer >= 1.2) {
             boss.shootTimer = 0;
 
+            // TIROS NORMAIS
             enemyBullets.push({
                 x: boss.x,
                 y: boss.y + boss.h / 2,
@@ -582,6 +628,20 @@ function updateBoss(boss, delta) {
                 vy: 1.2,
                 size: 5
             });
+
+            if (boss.hp <= boss.maxHp / 2 && boss.specialTimer >= 2.5) {
+                boss.specialTimer = 0;
+
+                enemyBullets.push({
+                    x: boss.x,
+                    y: boss.y + boss.h / 2,
+                    vx: -2.2,
+                    vy: 0,
+                    size: 7,
+                    explosive: true,
+                    pulse: 0
+                });
+            }
         }
     }
 
@@ -679,13 +739,14 @@ function spawnWaveEnemy(type) {
 function spawnBoss(type) {
     if (type === "boss1") {
         enemies.push({
+            specialTimer: 0,
             id: `boss-${stage}-${wave}`,
             x: canvas.width + 120,
             y: canvas.height / 2 - 60,
             w: 110,
             h: 90,
-            hp: 600,
-            maxHp: 600,
+            hp: 350,
+            maxHp: 350,
             isBoss: true,
             bossType: "boss1",
             speed: 1.6,
@@ -701,8 +762,8 @@ function spawnBoss(type) {
             y: canvas.height / 2 - 70,
             w: 130,
             h: 110,
-            hp: 900,
-            maxHp: 900,
+            hp: 500,
+            maxHp: 500,
             isBoss: true,
             bossType: "boss2",
             speed: 2.0,
@@ -1058,13 +1119,44 @@ function drawBullets() {
 
 function drawEnemyBullets() {
     enemyBullets.forEach(b => {
-        ctx.shadowBlur = 14;
-        ctx.shadowColor = "#ff4a70";
-        ctx.fillStyle = "#ff6b88";
 
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
-        ctx.fill();
+        if (b.explosive) {
+            const t = Math.sin(b.pulse * 4) * 0.5 + 0.5;
+
+            // mistura vermelho → amarelo
+            const r = 255;
+            const g = Math.floor(80 + 175 * t);
+            const color = `rgb(${r},${g},0)`;
+
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = color;
+            ctx.fillStyle = color;
+
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.size + 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+        } else if (b.fromExplosion) {
+            // 🔥 projéteis amarelos da explosão
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = "#ffd84a";
+            ctx.fillStyle = "#ffe066";
+
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+            ctx.fill();
+
+        } else {
+            // padrão antigo
+            ctx.shadowBlur = 14;
+            ctx.shadowColor = "#ff4a70";
+            ctx.fillStyle = "#ff6b88";
+
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
     });
 
     ctx.shadowBlur = 0;
