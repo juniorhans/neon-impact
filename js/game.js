@@ -46,6 +46,49 @@ let waveTransitionTimer = 0;
 let waveIntroText = "";
 let gameWon = false;
 
+
+// =========================
+// MÚSICA
+// =========================
+const bgMusic = new Audio("sounds/music.wav");
+bgMusic.loop = true;
+bgMusic.volume = 0.04;
+
+function playMusic() {
+    bgMusic.play();
+}
+
+function stopMusic() {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+}
+
+
+// =========================
+// ÁUDIO
+// =========================
+const shootSound = new Audio("sounds/shoot.wav");
+shootSound.volume = 0.01;
+
+// Permite múltiplos tiros simultâneos
+function playShootSound() {
+    const s = shootSound.cloneNode();
+    s.volume = shootSound.volume;
+    s.play();
+}
+
+
+const hitSound = new Audio("sounds/hit.wav");
+hitSound.volume = 0.01;
+
+function playHitSound() {
+    const s = hitSound.cloneNode();
+    s.volume = hitSound.volume;
+    s.play();
+}
+
+
+
 const stages = [
     {
         name: "Setor Orbital",
@@ -112,6 +155,7 @@ touchPad.addEventListener("touchcancel", (e) => {
 // INÍCIO
 // =========================
 function startGame() {
+    playMusic();
     player = {
         x: 60,
         y: canvas.height / 2 - 12,
@@ -317,6 +361,7 @@ function update(delta) {
     if (hp <= 0) {
         hp = 0;
         running = false;
+        stopMusic();
 
         if (score > highScore) {
             highScore = score;
@@ -335,17 +380,17 @@ function updatePlayer(delta) {
     if (keys["d"] || keys["arrowright"]) player.x += player.speed;
 
     if (touchActive) {
-    const sensitivity = 1.0;
+        const sensitivity = 1.0;
 
-    const deltaX = touchX - lastTouchX;
-    const deltaY = touchY - lastTouchY;
+        const deltaX = touchX - lastTouchX;
+        const deltaY = touchY - lastTouchY;
 
-    player.x += deltaX * sensitivity;
-    player.y += deltaY * sensitivity;
+        player.x += deltaX * sensitivity;
+        player.y += deltaY * sensitivity;
 
-    lastTouchX = touchX;
-    lastTouchY = touchY;
-}
+        lastTouchX = touchX;
+        lastTouchY = touchY;
+    }
 
 
     player.x = Math.max(12, Math.min(canvas.width - player.w - 12, player.x));
@@ -449,6 +494,7 @@ function updateEnemies(delta) {
         for (let j = bullets.length - 1; j >= 0; j--) {
             if (hit(bullets[j], e)) {
                 bullets.splice(j, 1);
+                playHitSound();
 
                 if (e.isBoss) {
                     e.hp -= 4;
@@ -720,6 +766,21 @@ function updateBackground() {
     });
 }
 
+
+function initAudioAndStart() {
+    shootSound.play().then(() => {
+        shootSound.pause();
+        shootSound.currentTime = 0;
+
+        playMusic();
+        startGame();
+    }).catch(() => {
+        startGame();
+    });
+}
+
+
+
 function fireBullet() {
     bullets.push({
         x: player.x + player.w - 2,
@@ -728,6 +789,8 @@ function fireBullet() {
         h: 4,
         speed: 9
     });
+
+    playShootSound();
 
     particles.push({
         x: player.x + player.w + 4,
@@ -1214,9 +1277,9 @@ function updateHUD() {
 
 function hit(a, b) {
     return a.x < b.x + b.w &&
-           a.x + a.w > b.x &&
-           a.y < b.y + b.h &&
-           a.y + a.h > b.y;
+        a.x + a.w > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y;
 }
 
 function hexToRgba(hex, alpha) {
