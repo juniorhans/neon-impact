@@ -1,5 +1,6 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const touchPad = document.getElementById("touchPad");
 
 canvas.width = 640;
 canvas.height = 480;
@@ -75,10 +76,10 @@ const stages = [
 window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
 window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-canvas.addEventListener("touchstart", (e) => {
+touchPad.addEventListener("touchstart", (e) => {
     e.preventDefault();
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = touchPad.getBoundingClientRect();
     touchActive = true;
 
     touchX = e.touches[0].clientX - rect.left;
@@ -88,15 +89,20 @@ canvas.addEventListener("touchstart", (e) => {
     lastTouchY = touchY;
 }, { passive: false });
 
-canvas.addEventListener("touchmove", (e) => {
+touchPad.addEventListener("touchmove", (e) => {
     e.preventDefault();
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = touchPad.getBoundingClientRect();
     touchX = e.touches[0].clientX - rect.left;
     touchY = e.touches[0].clientY - rect.top;
 }, { passive: false });
 
-canvas.addEventListener("touchend", (e) => {
+touchPad.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    touchActive = false;
+}, { passive: false });
+
+touchPad.addEventListener("touchcancel", (e) => {
     e.preventDefault();
     touchActive = false;
 }, { passive: false });

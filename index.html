@@ -1,66 +1,76 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Impact</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<div class="container">
-    <div class="hud">
-        <div class="hud-left">
-            <h1>NEON IMPACT</h1>
-            <p>Arcade Fleet Collection</p>
+    <div class="container">
+        <div class="hud">
+            <div class="hud-left">
+                <h1>NEON IMPACT</h1>
+                <p>Arcade Fleet Collection</p>
+            </div>
+
+            <div class="hud-right">
+                <div class="hud-card">
+                    <span>Score</span>
+                    <b id="score">0</b>
+                </div>
+
+                <div class="hud-card">
+                    <span>Vida</span>
+                    <b id="hp">100</b>
+                </div>
+
+                <div class="hud-card">
+                    <span>Fase</span>
+                    <b id="stage">1</b>
+                </div>
+
+                <div class="hud-card">
+                    <span>Onda</span>
+                    <b id="wave">1</b>
+                </div>
+            </div>
         </div>
 
-        <div class="hud-right">
-            <div class="hud-card">
-                <span>Score</span>
-                <b id="score">0</b>
+        <div class="game-stage">
+            <div class="game-shell">
+                <canvas id="gameCanvas"></canvas>
+
+                <div class="menu" id="menu">
+                    <div class="menu-card">
+                        <h2>NEON IMPACT</h2>
+                        <p>Destrua ondas inimigas e sobreviva o máximo possível.</p>
+                        <button onclick="startGame()">JOGAR</button>
+                    </div>
+                </div>
+
+                <div class="menu hidden" id="gameOver">
+                    <div class="menu-card">
+                        <h2>GAME OVER</h2>
+                        <p>Sua nave foi destruída.</p>
+                        <button onclick="startGame()">RECOMEÇAR</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="hud-card">
-                <span>Vida</span>
-                <b id="hp">100</b>
-            </div>
-
-            <div class="hud-card">
-                <span>Fase</span>
-                <b id="stage">1</b>
-            </div>
-
-            <div class="hud-card">
-                <span>Onda</span>
-                <b id="wave">1</b>
+            <div id="touchPad" class="touch-pad">
+                <div class="touch-pad-label">MOVER</div>
             </div>
         </div>
     </div>
 
-    <div class="game-stage">
-        <div class="game-shell">
-            <canvas id="gameCanvas"></canvas>
-
-            <div class="menu" id="menu">
-                <div class="menu-card">
-                    <h2>NEON IMPACT</h2>
-                    <p>Destrua ondas inimigas e sobreviva o máximo possível.</p>
-                    <button onclick="startGame()">JOGAR</button>
-                </div>
-            </div>
-
-            <div class="menu hidden" id="gameOver">
-                <div class="menu-card">
-                    <h2>GAME OVER</h2>
-                    <p>Sua nave foi destruída.</p>
-                    <button onclick="startGame()">RECOMEÇAR</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="js/game.js"></script>
+    <script defer src="js/game.js"></script>
 </body>
+
 </html>
