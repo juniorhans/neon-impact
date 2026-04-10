@@ -1,6 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const touchPad = document.getElementById("touchPad");
+const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
 canvas.width = 640;
 canvas.height = 480;
@@ -45,6 +46,18 @@ let bossActive = false;
 let waveTransitionTimer = 0;
 let waveIntroText = "";
 let gameWon = false;
+
+
+
+function setShadow(ctx, blur, color) {
+    if (isMobile) {
+        ctx.shadowBlur = 0;
+        return;
+    }
+    ctx.shadowBlur = blur;
+    ctx.shadowColor = color;
+}
+
 
 
 // =========================
@@ -1013,15 +1026,15 @@ function drawBackground() {
     });
 
     stars.forEach(s => {
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = isStage2 ? "rgba(255,100,180,0.7)" : "rgba(100,220,255,0.8)";
+        setShadow(ctx, 20, "rgba(255,100,180,0.7)");
+        ctx.shadowColor = isStage2 ? "rgba(255,100,180,0.6)" : "rgba(100,220,255,0.8)";
         ctx.fillStyle = `rgba(240,250,255,${s.alpha})`;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
         ctx.fill();
     });
 
-    ctx.shadowBlur = 0;
+    const newLocal = ctx.shadowBlur = 0;
 }
 
 function drawPlayer() {
@@ -1032,7 +1045,7 @@ function drawPlayer() {
         ctx.globalAlpha = 0.45;
     }
 
-    ctx.shadowBlur = 24;
+    setShadow(ctx, 20, "#00ffff");
     ctx.shadowColor = player.hitFlash > 0 ? "#ffffff" : "#00e5ff";
 
     ctx.fillStyle = player.hitFlash > 0 ? "#ffffff" : "#4fc3ff";
@@ -1063,8 +1076,7 @@ function drawPlayer() {
     ctx.closePath();
     ctx.fill();
 
-    ctx.shadowBlur = 16;
-    ctx.shadowColor = "#ffffff";
+    setShadow(ctx, 20, "#ffffff");
     ctx.fillStyle = "#e9fdff";
     ctx.beginPath();
     ctx.ellipse(17, player.h / 2, 5, 4, 0, 0, Math.PI * 2);
@@ -1075,7 +1087,7 @@ function drawPlayer() {
     ctx.fillRect(10, 8, 6, 2);
     ctx.fillRect(10, 14, 6, 2);
 
-    ctx.shadowBlur = 22;
+    setShadow(ctx, 20, "#00ffff");
     ctx.shadowColor = "#00ffff";
     const flameLen = 10 + Math.random() * 8;
     const flameGrad = ctx.createLinearGradient(-flameLen, 0, 0, 0);
@@ -1098,7 +1110,7 @@ function drawPlayer() {
 
 function drawBullets() {
     bullets.forEach(b => {
-        ctx.shadowBlur = 16;
+        setShadow(ctx, 20, "#00ffff");
         ctx.shadowColor = "#00ffff";
 
         const bulletGrad = ctx.createLinearGradient(b.x - 12, b.y, b.x + b.w, b.y);
@@ -1128,7 +1140,7 @@ function drawEnemyBullets() {
             const g = Math.floor(80 + 175 * t);
             const color = `rgb(${r},${g},0)`;
 
-            ctx.shadowBlur = 18;
+            setShadow(ctx, 20, "#00ffff");
             ctx.shadowColor = color;
             ctx.fillStyle = color;
 
@@ -1138,7 +1150,7 @@ function drawEnemyBullets() {
 
         } else if (b.fromExplosion) {
             // 🔥 projéteis amarelos da explosão
-            ctx.shadowBlur = 14;
+            setShadow(ctx, 20, "#00ffff");
             ctx.shadowColor = "#ffd84a";
             ctx.fillStyle = "#ffe066";
 
@@ -1148,7 +1160,7 @@ function drawEnemyBullets() {
 
         } else {
             // padrão antigo
-            ctx.shadowBlur = 14;
+            setShadow(ctx, 20, "#00ffff");
             ctx.shadowColor = "#ff4a70";
             ctx.fillStyle = "#ff6b88";
 
@@ -1172,7 +1184,7 @@ function drawEnemies() {
         ctx.save();
         ctx.translate(e.x, e.y);
 
-        ctx.shadowBlur = 18;
+        setShadow(ctx, 20, "#00ffff");
         ctx.shadowColor = "#ff5a7a";
 
         ctx.fillStyle = "#ff5a7a";
@@ -1203,7 +1215,7 @@ function drawEnemies() {
         ctx.closePath();
         ctx.fill();
 
-        ctx.shadowBlur = 12;
+        setShadow(ctx, 20, "#00ffff");
         ctx.shadowColor = "#ffffff";
         ctx.fillStyle = "#ffeaf0";
         ctx.beginPath();
@@ -1228,7 +1240,7 @@ function drawBoss(boss) {
     ctx.save();
     ctx.translate(boss.x, boss.y);
 
-    ctx.shadowBlur = 26;
+    setShadow(ctx, 20, "#00ffff");
     ctx.shadowColor = boss.bossType === "boss2" ? "#ff2d88" : "#ff4068";
 
     const wingGrad = ctx.createLinearGradient(0, 0, boss.w, 0);
@@ -1263,7 +1275,7 @@ function drawBoss(boss) {
     ctx.closePath();
     ctx.fill();
 
-    ctx.shadowBlur = 18;
+    setShadow(ctx, 20, "#00ffff");
     ctx.shadowColor = "#ffffff";
     ctx.fillStyle = "#fff0f4";
     ctx.beginPath();
@@ -1280,7 +1292,7 @@ function drawBoss(boss) {
 function drawParticles() {
     particles.forEach(p => {
         const alpha = Math.max(0, p.life / p.maxLife);
-        ctx.shadowBlur = 12;
+        setShadow(ctx, 20, "#00ffff");
         ctx.shadowColor = `rgba(${p.color}, ${alpha})`;
         ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
 
@@ -1296,7 +1308,7 @@ function drawExplosions() {
     explosions.forEach(ex => {
         const alpha = ex.life / ex.maxLife;
 
-        ctx.shadowBlur = 22;
+        setShadow(ctx, 20, "#00ffff");
         ctx.shadowColor = ex.color;
         ctx.strokeStyle = hexToRgba(ex.color, alpha);
         ctx.lineWidth = 3;
@@ -1343,13 +1355,13 @@ function drawWaveIntro() {
     ctx.globalAlpha = alpha;
     ctx.textAlign = "center";
 
-    ctx.shadowBlur = 20;
+    setShadow(ctx, 20, "#00ffff");
     ctx.shadowColor = stage >= 2 ? "#ff55aa" : "#00ffff";
     ctx.fillStyle = "#eaffff";
     ctx.font = "bold 28px Arial";
     ctx.fillText(`FASE ${stage}`, canvas.width / 2, canvas.height / 2 - 20);
 
-    ctx.shadowBlur = 14;
+    setShadow(ctx, 20, "#00ffff");
     ctx.fillStyle = "rgba(220,245,255,0.92)";
     ctx.font = "18px Arial";
     ctx.fillText(waveIntroText, canvas.width / 2, canvas.height / 2 + 18);
